@@ -53,8 +53,30 @@ public class TelaPrincipalController implements Initializable
     @FXML
     private void evtGeraScript(ActionEvent event)
     {
-        //System.out.println(GetNomeR());
+        long inicio;
+        long fim;
+        long tresult;
+        System.out.flush();
+        //String
+        inicio = System.currentTimeMillis();
         GetScript();
+        fim = System.currentTimeMillis();
+        tresult = fim-inicio;
+        System.out.println("String = "+tresult);
+        
+        //StringBuilder
+        inicio = System.currentTimeMillis();
+        GetScriptStringBuilder();//não sei porque mais demora mais
+        fim = System.currentTimeMillis();
+        tresult = fim-inicio;
+        System.out.println("StringBuilder = "+tresult);
+        
+        //StringBuffer
+        inicio = System.currentTimeMillis();
+        GetScriptStringBuffer();//não sei porque mais demora mais
+        fim = System.currentTimeMillis();
+        tresult = fim-inicio;
+        System.out.println("StringBuffer = "+tresult);
     }
 
     private Boolean getInformacoes()
@@ -143,7 +165,7 @@ public class TelaPrincipalController implements Initializable
     
     private Boolean GetScript()
     {
-        String sql = "", aux = "";
+        String sql = "";
         txscript.setText("");
         pngenerator.setDisable(true);
         
@@ -182,9 +204,6 @@ public class TelaPrincipalController implements Initializable
                         {
                             sql += "''";
                         }
-                        //aux = aux.replaceAll("()", "");
-                        sql += aux;
-                        aux = "";
                         if(k+1 < colunas.size())
                             sql+=",";
                     }
@@ -221,6 +240,192 @@ public class TelaPrincipalController implements Initializable
                     sql+=");\n";
                     txscript.setText(txscript.getText() + sql);
                     sql = "";
+                }
+                
+            } catch (Exception ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+            
+        }
+        else
+        {
+            pngenerator.setDisable(false);
+        }
+        colunas.clear();
+        pngenerator.setDisable(false);
+        return !txscript.getText().isEmpty();
+    }
+    private Boolean GetScriptStringBuilder()
+    {
+        StringBuilder sql = new StringBuilder("");
+        txscript.setText("");
+        pngenerator.setDisable(true);
+        
+        if(getInformacoes())
+        {
+            Random r = new Random();
+            Integer j = 0;
+            try
+            {
+                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty())? "0" : txquantidade.getText()); j++)
+                {
+                    sql.append("INSERT INTO "+txtabela.getText()+" (");
+                    for (int k = 0; k < colunas.size(); k++)
+                    {
+                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        {
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                        {
+                            sql.append(colunas.get(k).substring(9, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                        {
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                        {
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                        {
+                            sql.append(colunas.get(k).substring(6, colunas.get(k).length()));
+                        }
+                        else
+                        {
+                            sql.append("''");
+                        }
+                        if(k+1 < colunas.size())
+                            sql.append(",");
+                    }
+                    sql.append(") VALUES (");
+                    for (int k = 0; k < colunas.size(); k++)
+                    {
+                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        {
+                            sql.append(Double.toString(r.nextDouble()*1000).substring(0, 5));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                        {
+                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1)%1000));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                        {
+                            sql.append(Integer.toString(j+1));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                        {
+                            sql.append("'"+Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()+"'");
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                        {
+                            sql.append("'"+GetNomeR()+"'");
+                        }
+                        else
+                        {
+                            sql.append("''");
+                        }
+                        if(k+1 < colunas.size())
+                            sql.append(", ");
+                    }
+                    sql.append(");\n");
+                    txscript.setText(txscript.getText() + sql);
+                    sql = new StringBuilder("");
+                }
+                
+            } catch (Exception ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+            
+        }
+        else
+        {
+            pngenerator.setDisable(false);
+        }
+        colunas.clear();
+        pngenerator.setDisable(false);
+        return !txscript.getText().isEmpty();
+    }
+    private Boolean GetScriptStringBuffer()
+    {
+        StringBuffer sql = new StringBuffer("");
+        txscript.setText("");
+        pngenerator.setDisable(true);
+        
+        if(getInformacoes())
+        {
+            Random r = new Random();
+            Integer j = 0;
+            try
+            {
+                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty())? "0" : txquantidade.getText()); j++)
+                {
+                    sql.append("INSERT INTO "+txtabela.getText()+" (");
+                    for (int k = 0; k < colunas.size(); k++)
+                    {
+                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        {
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                        {
+                            sql.append(colunas.get(k).substring(9, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                        {
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                        {
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                        {
+                            sql.append(colunas.get(k).substring(6, colunas.get(k).length()));
+                        }
+                        else
+                        {
+                            sql.append("''");
+                        }
+                        if(k+1 < colunas.size())
+                            sql.append(",");
+                    }
+                    sql.append(") VALUES (");
+                    for (int k = 0; k < colunas.size(); k++)
+                    {
+                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        {
+                            sql.append(Double.toString(r.nextDouble()*1000).substring(0, 5));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                        {
+                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1)%1000));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                        {
+                            sql.append(Integer.toString(j+1));
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                        {
+                            sql.append("'"+Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()+"'");
+                        }
+                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                        {
+                            sql.append("'"+GetNomeR()+"'");
+                        }
+                        else
+                        {
+                            sql.append("''");
+                        }
+                        if(k+1 < colunas.size())
+                            sql.append(", ");
+                    }
+                    sql.append(");\n");
+                    txscript.setText(txscript.getText() + sql);
+                    sql = new StringBuffer("");
                 }
                 
             } catch (Exception ex)
