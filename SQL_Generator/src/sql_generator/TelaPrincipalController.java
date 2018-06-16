@@ -31,6 +31,7 @@ import javafx.scene.layout.HBox;
  */
 public class TelaPrincipalController implements Initializable
 {
+
     @FXML
     private TextField txtabela;
     @FXML
@@ -43,12 +44,13 @@ public class TelaPrincipalController implements Initializable
     private HBox pngenerator;
     @FXML
     private TextField txquantidade;
+
     //private ProgressBar progress;
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
         colunas = new ArrayList<>();
-    }    
+    }
 
     @FXML
     private void evtGeraScript(ActionEvent event)
@@ -57,26 +59,26 @@ public class TelaPrincipalController implements Initializable
         long fim;
         long tresult;
         System.out.flush();
-        //String
+        /*//String
         inicio = System.currentTimeMillis();
         GetScript();
         fim = System.currentTimeMillis();
-        tresult = fim-inicio;
-        System.out.println("String = "+tresult);
-        
+        tresult = fim - inicio;
+        System.out.println("String = " + tresult);*/
+
         //StringBuilder
         inicio = System.currentTimeMillis();
-        GetScriptStringBuilder();//não sei porque mais demora mais
+        GetScriptStringBuilder();//Mais Rápido Que String Normal
         fim = System.currentTimeMillis();
-        tresult = fim-inicio;
-        System.out.println("StringBuilder = "+tresult);
-        
-        //StringBuffer
+        tresult = fim - inicio;
+        System.out.println("StringBuilder = " + tresult);
+
+        /*//StringBuffer
         inicio = System.currentTimeMillis();
         GetScriptStringBuffer();//não sei porque mais demora mais
         fim = System.currentTimeMillis();
-        tresult = fim-inicio;
-        System.out.println("StringBuffer = "+tresult);
+        tresult = fim - inicio;
+        System.out.println("StringBuffer = " + tresult);*/
     }
 
     private Boolean getInformacoes()
@@ -86,36 +88,40 @@ public class TelaPrincipalController implements Initializable
         tabela = txtabela.getText();
         tabela = tabela.replaceAll(" ", "");
         aux = aux.replaceAll(" ", "");
-        if(tabela.isEmpty())
+        if (tabela.isEmpty())
         {
             Alert a = new Alert(Alert.AlertType.ERROR);
             a.setContentText("Favor Informar o Nome da Tabela!!!");
             a.show();
             flag = false;
-        }
-        else if(aux.replaceAll(",", "").isEmpty())
+        } else if (aux.replaceAll(",", "").isEmpty())
         {
             Alert a = new Alert(Alert.AlertType.ERROR);
             a.setContentText("Favor Informar o Nome da Tabela!!!");
             a.show();
             flag = false;
-        }
-        else//tudo OK(ignorando algumas exceções)
+        } else//tudo OK(ignorando algumas exceções)
         {
             for (int i = 0, p; !aux.isEmpty(); i++)
             {
                 p = aux.indexOf(",");
-                if(p == -1 && !aux.isEmpty())
+                if (p == -1 && !aux.isEmpty())
+                {
                     p = aux.length();
+                }
                 colunas.add(aux.substring(0, p));
-                if(p == aux.length())
+                if (p == aux.length())
+                {
                     aux = "";
-                else
-                    aux = aux.replace(colunas.get(i)+",", "");
+                } else
+                {
+                    aux = aux.replace(colunas.get(i) + ",", "");
+                }
             }
         }
         return flag && colunas.size() > 0;
     }
+
     private String GetNomeR()
     {
         String nome = "";
@@ -125,130 +131,123 @@ public class TelaPrincipalController implements Initializable
         File f3 = new File("src/Arquivos/SobreNome.txt");
         try
         {
-            if(f.exists())
+            if (f.exists())
             {
                 RandomAccessFile rafNome = new RandomAccessFile(f, "r");
-                aux = new Random().nextInt(21984);
+                aux = new Random().nextInt((int) rafNome.length());
                 rafNome.seek(aux);
                 rafNome.readLine();
-                nome = rafNome.readLine()+" ";
+                nome = rafNome.readLine() + " ";
                 rafNome.close();
             }
-            if(f2.exists())
+            if (f2.exists())
             {
                 RandomAccessFile rafMnome = new RandomAccessFile(f2, "r");
-                aux = new Random().nextInt(3896);
+                aux = new Random().nextInt((int) rafMnome.length());
                 rafMnome.seek(aux);
                 rafMnome.readLine();
-                nome += rafMnome.readLine()+" ";
+                nome += rafMnome.readLine() + " ";
                 rafMnome.close();
             }
-            if(f3.exists())
+            if (f3.exists())
             {
                 RandomAccessFile rafSnome = new RandomAccessFile(f3, "r");
-                aux = new Random().nextInt(4944);
+                aux = new Random().nextInt((int) rafSnome.length());
                 rafSnome.seek(aux);
                 rafSnome.readLine();
                 nome += rafSnome.readLine();
                 rafSnome.close();
             }
-        }
-        catch(FileNotFoundException fex)
+        } catch (FileNotFoundException fex)
         {
-            
+
         } catch (IOException ex)
         {
             Logger.getLogger(TelaPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return nome;
     }
-    
+
     private Boolean GetScript()
     {
         String sql = "";
         txscript.setText("");
         pngenerator.setDisable(true);
-        
-        if(getInformacoes())
+
+        if (getInformacoes())
         {
             Random r = new Random();
             Integer j = 0;
             try
             {
-                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty())? "0" : txquantidade.getText()); j++)
+                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty()) ? "0" : txquantidade.getText()); j++)
                 {
-                    sql = "INSERT INTO "+txtabela.getText()+" (";
+                    sql += "INSERT INTO " + txtabela.getText() + " (";
                     for (int k = 0; k < colunas.size(); k++)
                     {
-                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        if (colunas.get(k).toLowerCase().contains("(double)"))
                         {
                             sql += colunas.get(k).substring(8, colunas.get(k).length());
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
                         {
                             sql += colunas.get(k).substring(9, colunas.get(k).length());
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
                         {
                             sql += colunas.get(k).substring(8, colunas.get(k).length());
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
                         {
                             sql += colunas.get(k).substring(8, colunas.get(k).length());
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
                         {
                             sql += colunas.get(k).substring(6, colunas.get(k).length());
-                        }
-                        else
+                        } else
                         {
                             sql += "''";
                         }
-                        if(k+1 < colunas.size())
-                            sql+=",";
+                        if (k + 1 < colunas.size())
+                        {
+                            sql += ",";
+                        }
                     }
-                    sql+=") VALUES (";
+                    sql += ") VALUES (";
                     for (int k = 0; k < colunas.size(); k++)
                     {
-                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        if (colunas.get(k).toLowerCase().contains("(double)"))
                         {
-                            sql += Double.toString(r.nextDouble()*1000).substring(0, 5);
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                            sql += Double.toString(r.nextDouble() * 1000).substring(0, 5);
+                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
                         {
-                            sql += Integer.toString(r.nextInt(Integer.SIZE - 1)%1000);
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                            sql += Integer.toString(r.nextInt(Integer.SIZE - 1) % 1000);
+                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
                         {
-                            sql += Integer.toString(j+1);
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                            sql += Integer.toString(j + 1);
+                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
                         {
-                            sql += "'"+Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()+"'";
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                            sql += "'" + Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString() + "'";
+                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
                         {
-                            sql += "'"+GetNomeR()+"'";
-                        }
-                        else
+                            sql += "'" + GetNomeR() + "'";
+                        } else
                         {
                             sql += "''";
                         }
-                        if(k+1 < colunas.size())
-                            sql+=", ";
+                        if (k + 1 < colunas.size())
+                        {
+                            sql += ", ";
+                        }
                     }
-                    sql+=");\n";
-                    txscript.setText(txscript.getText() + sql);
-                    sql = "";
+                    sql += ");\n";
+                    //txscript.setText(txscript.getText() + sql);
+                    //sql = "";
                 }
-                
+                txscript.setText(sql);
+
             } catch (Exception ex)
             {
                 System.out.println(ex.getMessage());
             }
-            
-        }
-        else
+
+        } else
         {
             pngenerator.setDisable(false);
         }
@@ -256,92 +255,87 @@ public class TelaPrincipalController implements Initializable
         pngenerator.setDisable(false);
         return !txscript.getText().isEmpty();
     }
+
     private Boolean GetScriptStringBuilder()
     {
         StringBuilder sql = new StringBuilder("");
         txscript.setText("");
         pngenerator.setDisable(true);
-        
-        if(getInformacoes())
+
+        if (getInformacoes())
         {
             Random r = new Random();
             Integer j = 0;
             try
             {
-                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty())? "0" : txquantidade.getText()); j++)
+                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty()) ? "0" : txquantidade.getText()); j++)
                 {
-                    sql.append("INSERT INTO "+txtabela.getText()+" (");
+                    sql.append("INSERT INTO " + txtabela.getText() + " (");
                     for (int k = 0; k < colunas.size(); k++)
                     {
-                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        if (colunas.get(k).toLowerCase().contains("(double)"))
                         {
                             sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
                         {
                             sql.append(colunas.get(k).substring(9, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
                         {
                             sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
                         {
                             sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
                         {
                             sql.append(colunas.get(k).substring(6, colunas.get(k).length()));
-                        }
-                        else
+                        } else
                         {
                             sql.append("''");
                         }
-                        if(k+1 < colunas.size())
+                        if (k + 1 < colunas.size())
+                        {
                             sql.append(",");
+                        }
                     }
                     sql.append(") VALUES (");
                     for (int k = 0; k < colunas.size(); k++)
                     {
-                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        if (colunas.get(k).toLowerCase().contains("(double)"))
                         {
-                            sql.append(Double.toString(r.nextDouble()*1000).substring(0, 5));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                            sql.append(Double.toString(r.nextDouble() * 1000).substring(0, 5));
+                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
                         {
-                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1)%1000));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1) % 1000));
+                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
                         {
-                            sql.append(Integer.toString(j+1));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                            sql.append(Integer.toString(j + 1));
+                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
                         {
-                            sql.append("'"+Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()+"'");
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                            sql.append("'" + Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString() + "'");
+                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
                         {
-                            sql.append("'"+GetNomeR()+"'");
-                        }
-                        else
+                            sql.append("'" + GetNomeR() + "'");
+                        } else
                         {
                             sql.append("''");
                         }
-                        if(k+1 < colunas.size())
+                        if (k + 1 < colunas.size())
+                        {
                             sql.append(", ");
+                        }
                     }
                     sql.append(");\n");
-                    txscript.setText(txscript.getText() + sql);
-                    sql = new StringBuilder("");
+                    //txscript.setText(txscript.getText() + sql);
+                    //sql = new StringBuilder("");
                 }
-                
+                txscript.setText(sql.toString());
+
             } catch (Exception ex)
             {
                 System.out.println(ex.getMessage());
             }
-            
-        }
-        else
+
+        } else
         {
             pngenerator.setDisable(false);
         }
@@ -349,92 +343,87 @@ public class TelaPrincipalController implements Initializable
         pngenerator.setDisable(false);
         return !txscript.getText().isEmpty();
     }
+
     private Boolean GetScriptStringBuffer()
     {
         StringBuffer sql = new StringBuffer("");
         txscript.setText("");
         pngenerator.setDisable(true);
-        
-        if(getInformacoes())
+
+        if (getInformacoes())
         {
             Random r = new Random();
             Integer j = 0;
             try
             {
-                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty())? "0" : txquantidade.getText()); j++)
+                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty()) ? "0" : txquantidade.getText()); j++)
                 {
-                    sql.append("INSERT INTO "+txtabela.getText()+" (");
+                    sql.append("INSERT INTO " + txtabela.getText() + " (");
                     for (int k = 0; k < colunas.size(); k++)
                     {
-                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        if (colunas.get(k).toLowerCase().contains("(double)"))
                         {
                             sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
                         {
                             sql.append(colunas.get(k).substring(9, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
                         {
                             sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
                         {
                             sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
                         {
                             sql.append(colunas.get(k).substring(6, colunas.get(k).length()));
-                        }
-                        else
+                        } else
                         {
                             sql.append("''");
                         }
-                        if(k+1 < colunas.size())
+                        if (k + 1 < colunas.size())
+                        {
                             sql.append(",");
+                        }
                     }
                     sql.append(") VALUES (");
                     for (int k = 0; k < colunas.size(); k++)
                     {
-                        if(colunas.get(k).toLowerCase().contains("(double)"))
+                        if (colunas.get(k).toLowerCase().contains("(double)"))
                         {
-                            sql.append(Double.toString(r.nextDouble()*1000).substring(0, 5));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(integer)"))
+                            sql.append(Double.toString(r.nextDouble() * 1000).substring(0, 5));
+                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
                         {
-                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1)%1000));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(serial)"))
+                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1) % 1000));
+                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
                         {
-                            sql.append(Integer.toString(j+1));
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(date)"))
+                            sql.append(Integer.toString(j + 1));
+                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
                         {
-                            sql.append("'"+Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()+"'");
-                        }
-                        else if(colunas.get(k).toLowerCase().contains("(string)"))
+                            sql.append("'" + Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString() + "'");
+                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
                         {
-                            sql.append("'"+GetNomeR()+"'");
-                        }
-                        else
+                            sql.append("'" + GetNomeR() + "'");
+                        } else
                         {
                             sql.append("''");
                         }
-                        if(k+1 < colunas.size())
+                        if (k + 1 < colunas.size())
+                        {
                             sql.append(", ");
+                        }
                     }
                     sql.append(");\n");
-                    txscript.setText(txscript.getText() + sql);
-                    sql = new StringBuffer("");
+                    //txscript.setText(txscript.getText() + sql);
+                    //sql = new StringBuffer("");
                 }
-                
+                txscript.setText(sql.toString());
+
             } catch (Exception ex)
             {
                 System.out.println(ex.getMessage());
             }
-            
-        }
-        else
+
+        } else
         {
             pngenerator.setDisable(false);
         }
