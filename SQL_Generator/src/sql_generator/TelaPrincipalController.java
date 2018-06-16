@@ -5,6 +5,9 @@
  */
 package sql_generator;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,8 +24,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 /**
@@ -50,6 +56,9 @@ public class TelaPrincipalController implements Initializable
     public void initialize(URL url, ResourceBundle rb)
     {
         colunas = new ArrayList<>();
+        Tooltip.install(txtabela, new Tooltip("Nome Da Tabela!!"));
+        Tooltip.install(txcolunas, new Tooltip("Nome Das Colunas!!!\nEemplo:\n(Tipo)coluna1, (Tipo)coluna2"));
+        Tooltip.install(txquantidade, new Tooltip("Número de Linhas Que Serão Geradas!!!"));
     }
 
     @FXML
@@ -59,26 +68,11 @@ public class TelaPrincipalController implements Initializable
         long fim;
         long tresult;
         System.out.flush();
-        /*//String
-        inicio = System.currentTimeMillis();
-        GetScript();
-        fim = System.currentTimeMillis();
-        tresult = fim - inicio;
-        System.out.println("String = " + tresult);*/
-
-        //StringBuilder
         inicio = System.currentTimeMillis();
         GetScriptStringBuilder();//Mais Rápido Que String Normal
         fim = System.currentTimeMillis();
         tresult = fim - inicio;
         System.out.println("StringBuilder = " + tresult);
-
-        /*//StringBuffer
-        inicio = System.currentTimeMillis();
-        GetScriptStringBuffer();//não sei porque mais demora mais
-        fim = System.currentTimeMillis();
-        tresult = fim - inicio;
-        System.out.println("StringBuffer = " + tresult);*/
     }
 
     private Boolean getInformacoes()
@@ -167,95 +161,6 @@ public class TelaPrincipalController implements Initializable
         }
         return nome;
     }
-
-    private Boolean GetScript()
-    {
-        String sql = "";
-        txscript.setText("");
-        pngenerator.setDisable(true);
-
-        if (getInformacoes())
-        {
-            Random r = new Random();
-            Integer j = 0;
-            try
-            {
-                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty()) ? "0" : txquantidade.getText()); j++)
-                {
-                    sql += "INSERT INTO " + txtabela.getText() + " (";
-                    for (int k = 0; k < colunas.size(); k++)
-                    {
-                        if (colunas.get(k).toLowerCase().contains("(double)"))
-                        {
-                            sql += colunas.get(k).substring(8, colunas.get(k).length());
-                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
-                        {
-                            sql += colunas.get(k).substring(9, colunas.get(k).length());
-                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
-                        {
-                            sql += colunas.get(k).substring(8, colunas.get(k).length());
-                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
-                        {
-                            sql += colunas.get(k).substring(8, colunas.get(k).length());
-                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
-                        {
-                            sql += colunas.get(k).substring(6, colunas.get(k).length());
-                        } else
-                        {
-                            sql += "''";
-                        }
-                        if (k + 1 < colunas.size())
-                        {
-                            sql += ",";
-                        }
-                    }
-                    sql += ") VALUES (";
-                    for (int k = 0; k < colunas.size(); k++)
-                    {
-                        if (colunas.get(k).toLowerCase().contains("(double)"))
-                        {
-                            sql += Double.toString(r.nextDouble() * 1000).substring(0, 5);
-                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
-                        {
-                            sql += Integer.toString(r.nextInt(Integer.SIZE - 1) % 1000);
-                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
-                        {
-                            sql += Integer.toString(j + 1);
-                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
-                        {
-                            sql += "'" + Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString() + "'";
-                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
-                        {
-                            sql += "'" + GetNomeR() + "'";
-                        } else
-                        {
-                            sql += "''";
-                        }
-                        if (k + 1 < colunas.size())
-                        {
-                            sql += ", ";
-                        }
-                    }
-                    sql += ");\n";
-                    //txscript.setText(txscript.getText() + sql);
-                    //sql = "";
-                }
-                txscript.setText(sql);
-
-            } catch (Exception ex)
-            {
-                System.out.println(ex.getMessage());
-            }
-
-        } else
-        {
-            pngenerator.setDisable(false);
-        }
-        colunas.clear();
-        pngenerator.setDisable(false);
-        return !txscript.getText().isEmpty();
-    }
-
     private Boolean GetScriptStringBuilder()
     {
         StringBuilder sql = new StringBuilder("");
@@ -344,91 +249,17 @@ public class TelaPrincipalController implements Initializable
         return !txscript.getText().isEmpty();
     }
 
-    private Boolean GetScriptStringBuffer()
+    @FXML
+    private void evtCopy(MouseEvent event)
     {
-        StringBuffer sql = new StringBuffer("");
-        txscript.setText("");
-        pngenerator.setDisable(true);
-
-        if (getInformacoes())
+        Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+        try
         {
-            Random r = new Random();
-            Integer j = 0;
-            try
-            {
-                for (j = 0; j < Integer.parseInt((txquantidade.getText().isEmpty()) ? "0" : txquantidade.getText()); j++)
-                {
-                    sql.append("INSERT INTO " + txtabela.getText() + " (");
-                    for (int k = 0; k < colunas.size(); k++)
-                    {
-                        if (colunas.get(k).toLowerCase().contains("(double)"))
-                        {
-                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
-                        {
-                            sql.append(colunas.get(k).substring(9, colunas.get(k).length()));
-                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
-                        {
-                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
-                        {
-                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
-                        {
-                            sql.append(colunas.get(k).substring(6, colunas.get(k).length()));
-                        } else
-                        {
-                            sql.append("''");
-                        }
-                        if (k + 1 < colunas.size())
-                        {
-                            sql.append(",");
-                        }
-                    }
-                    sql.append(") VALUES (");
-                    for (int k = 0; k < colunas.size(); k++)
-                    {
-                        if (colunas.get(k).toLowerCase().contains("(double)"))
-                        {
-                            sql.append(Double.toString(r.nextDouble() * 1000).substring(0, 5));
-                        } else if (colunas.get(k).toLowerCase().contains("(integer)"))
-                        {
-                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1) % 1000));
-                        } else if (colunas.get(k).toLowerCase().contains("(serial)"))
-                        {
-                            sql.append(Integer.toString(j + 1));
-                        } else if (colunas.get(k).toLowerCase().contains("(date)"))
-                        {
-                            sql.append("'" + Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString() + "'");
-                        } else if (colunas.get(k).toLowerCase().contains("(string)"))
-                        {
-                            sql.append("'" + GetNomeR() + "'");
-                        } else
-                        {
-                            sql.append("''");
-                        }
-                        if (k + 1 < colunas.size())
-                        {
-                            sql.append(", ");
-                        }
-                    }
-                    sql.append(");\n");
-                    //txscript.setText(txscript.getText() + sql);
-                    //sql = new StringBuffer("");
-                }
-                txscript.setText(sql.toString());
-
-            } catch (Exception ex)
-            {
-                System.out.println(ex.getMessage());
-            }
-
-        } else
-        {
-            pngenerator.setDisable(false);
+            c.setContents(new StringSelection(txscript.getText()), null);
         }
-        colunas.clear();
-        pngenerator.setDisable(false);
-        return !txscript.getText().isEmpty();
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage());
+        }
     }
 }
