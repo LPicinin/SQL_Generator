@@ -25,9 +25,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
@@ -50,6 +52,8 @@ public class TelaPrincipalController implements Initializable
     private HBox pngenerator;
     @FXML
     private TextField txquantidade;
+    @FXML
+    private ImageView ivhelp;
 
     //private ProgressBar progress;
     @Override
@@ -261,5 +265,17 @@ public class TelaPrincipalController implements Initializable
         {
             System.out.println(ex.getMessage());
         }
+    }
+
+    @FXML
+    private void evtHelp(MouseEvent event)
+    {
+        new Alert(Alert.AlertType.INFORMATION, "Tipos de Dados Suportados Para Esta Versão:\n" +
+"                ►double;\n" +
+"                ►integer;\n" +
+"                ►serial;\n" +
+"                ►string(nomes de pessoas aleatórias);\n" +
+"                ►date.\n\n"+
+                "Caso tenha duvida sobre algum campo posicione o cursor do mouse sobre o campo para uma breve descrição!!!", ButtonType.OK).show();
     }
 }
