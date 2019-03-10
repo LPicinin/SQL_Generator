@@ -73,7 +73,7 @@ public class Controller
         this.ivhelp = ivhelp;
     }
 
-    private String GetNomeR() throws IOException
+    /*private String GetNomeR() throws IOException
     {
         String nome = "";
         Integer aux;
@@ -114,9 +114,8 @@ public class Controller
             rafSnome.close();
         }
         return nome;
-    }
-
-    private String GetNomeSQLite() throws SQLException
+    }*/
+    private String GetNomeSQLite()
     {
         String nome = "";
         Integer aux;
@@ -126,23 +125,30 @@ public class Controller
         int countM = con.getMaxPK("mnome", "codigo");
         int countS = con.getMaxPK("snome", "codigo");
 
-        //nome
-        aux = new Random().nextInt(countP);
-        rs = con.consultar("SELECT nome FROM pnome WHERE codigo = " + aux.toString());
-        rs.next();
-        nome = rs.getString("nome") + " ";
+        try
+        {
+            //nome
+            aux = new Random().nextInt(countP);
+            rs = con.consultar("SELECT nome FROM pnome WHERE codigo = " + aux.toString());
+            rs.next();
+            nome = rs.getString("nome") + " ";
 
-        //nome do meio
-        aux = new Random().nextInt(countM);
-        rs = con.consultar("SELECT nome FROM mnome WHERE codigo = " + aux.toString());
-        rs.next();
-        nome += rs.getString("nome") + " ";
+            //nome do meio
+            aux = new Random().nextInt(countM);
+            rs = con.consultar("SELECT nome FROM mnome WHERE codigo = " + aux.toString());
+            rs.next();
+            nome += rs.getString("nome") + " ";
 
-        //sobrenome
-        aux = new Random().nextInt(countS);
-        rs = con.consultar("SELECT nome FROM snome WHERE codigo = " + aux.toString());
-        rs.next();
-        nome += rs.getString("nome");
+            //sobrenome
+            aux = new Random().nextInt(countS);
+            rs = con.consultar("SELECT nome FROM snome WHERE codigo = " + aux.toString());
+            rs.next();
+            nome += rs.getString("nome");
+        } catch (Exception ex)
+        {
+            System.out.println(ex.getMessage()+Banco.getConexao().getMensagemErro());
+        }
+
         return nome;
     }
 
@@ -300,91 +306,84 @@ public class Controller
             String tp, otimizacao;
             String db, db2;
             int i1, i2;
-            try
+            for (j = 0; j < q; j++)
             {
-                for (j = 0; j < q; j++)
+                sql.append("INSERT INTO ").append(txtabela.getText()).append(" (");
+                for (k = 0; k < colunas.size(); k++)
                 {
-                    sql.append("INSERT INTO ").append(txtabela.getText()).append(" (");
-                    for (k = 0; k < colunas.size(); k++)
+                    otimizacao = colunas.get(k).toLowerCase();
+                    i1 = otimizacao.indexOf("(");
+                    i2 = otimizacao.indexOf(")");
+                    tp = otimizacao.substring(i1 + 1, i2);
+                    switch (tp)
                     {
-                        otimizacao = colunas.get(k).toLowerCase();
-                        i1 = otimizacao.indexOf("(");
-                        i2 = otimizacao.indexOf(")");
-                        tp = otimizacao.substring(i1 + 1, i2);
-                        switch (tp)
-                        {
-                            case "double":
-                                sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                                break;
-                            case "integer":
-                                sql.append(colunas.get(k).substring(9, colunas.get(k).length()));
-                                break;
-                            case "serial":
-                                sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                                break;
-                            case "string":
-                                sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
-                                break;
-                            case "date":
-                                sql.append(colunas.get(k).substring(6, colunas.get(k).length()));
-                                break;
-                            case "bit":
-                                sql.append(colunas.get(k).substring(5, colunas.get(k).length()));
-                                break;
-                            default:
-                                sql.append("''");
-                                break;
-                        }
-                        if (k + 1 < colunas.size())
-                        {
-                            sql.append(",");
-                        }
+                        case "double":
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                            break;
+                        case "integer":
+                            sql.append(colunas.get(k).substring(9, colunas.get(k).length()));
+                            break;
+                        case "serial":
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                            break;
+                        case "string":
+                            sql.append(colunas.get(k).substring(8, colunas.get(k).length()));
+                            break;
+                        case "date":
+                            sql.append(colunas.get(k).substring(6, colunas.get(k).length()));
+                            break;
+                        case "bit":
+                            sql.append(colunas.get(k).substring(5, colunas.get(k).length()));
+                            break;
+                        default:
+                            sql.append("''");
+                            break;
                     }
-                    sql.append(") VALUES (");
-                    for (k = 0; k < colunas.size(); k++)
+                    if (k + 1 < colunas.size())
                     {
-
-                        otimizacao = colunas.get(k).toLowerCase();
-                        i1 = otimizacao.indexOf("(");
-                        i2 = otimizacao.indexOf(")");
-                        tp = otimizacao.substring(i1 + 1, i2);
-
-                        switch (tp)
-                        {
-                            case "double":
-                                sql.append(Double.toString(r.nextDouble() * 1000).substring(0, 5));
-                                break;
-                            case "integer":
-                                sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1) % 1000));
-                                break;
-                            case "serial":
-                                sql.append(Integer.toString(j + 1));
-                                break;
-                            case "string":
-                                sql.append("'").append(GetNomeR()).append("'");
-                                break;
-                            case "date":
-                                sql.append("'").append(Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()).append("'");
-                                break;
-                            case "bit":
-                                sql.append(r.nextInt(10) % 2);
-                                break;
-                            default:
-                                sql.append("''");
-                                break;
-                        }
-
-                        if (k + 1 < colunas.size())
-                        {
-                            sql.append(", ");
-                        }
+                        sql.append(",");
                     }
-                    sql.append(");\n");
                 }
-
-            } catch (IOException ex)
-            {
-                System.out.println(ex.getMessage());
+                sql.append(") VALUES (");
+                for (k = 0; k < colunas.size(); k++)
+                {
+                    
+                    otimizacao = colunas.get(k).toLowerCase();
+                    i1 = otimizacao.indexOf("(");
+                    i2 = otimizacao.indexOf(")");
+                    tp = otimizacao.substring(i1 + 1, i2);
+                    
+                    switch (tp)
+                    {
+                        case "double":
+                            sql.append(Double.toString(r.nextDouble() * 1000).substring(0, 5));
+                            break;
+                        case "integer":
+                            sql.append(Integer.toString(r.nextInt(Integer.SIZE - 1) % 1000));
+                            break;
+                        case "serial":
+                            sql.append(Integer.toString(j + 1));
+                            break;
+                        case "string":
+                            sql.append("'").append(GetNomeSQLite()).append("'");
+                            break;
+                        case "date":
+                            sql.append("'").append(Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()).append("'");
+                            break;
+                        case "bit":
+                            sql.append(r.nextInt(10) % 2);
+                            break;
+                        default:
+                            sql.append("''");
+                            break;
+                    }
+                    
+                    if (k + 1 < colunas.size())
+                    {
+                        sql.append(", ");
+                    }
+                }
+                sql.append(");\n");
             }
 
         } else
