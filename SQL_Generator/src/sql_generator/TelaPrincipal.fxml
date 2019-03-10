@@ -15,11 +15,11 @@
         <HBox fx:id="pngenerator" alignment="CENTER" prefHeight="78.0" prefWidth="775.0" spacing="15.0" BorderPane.alignment="CENTER">
             <children>
                 <Label text="INSERT INTO" />
-                <TextField fx:id="txtabela" focusTraversable="false" prefHeight="31.0" prefWidth="157.0" promptText="&lt;Table Name&gt;" />
+                <TextField fx:id="txtabela" prefHeight="31.0" prefWidth="157.0" promptText="&lt;Table Name&gt;" />
                 <Label text="(" />
-                <TextField fx:id="txcolunas" focusTraversable="false" prefHeight="31.0" prefWidth="238.0" promptText="(Tipo)NColuna,(Tipo)NColuna" />
+                <TextField fx:id="txcolunas" prefHeight="31.0" prefWidth="238.0" promptText="(Tipo)NColuna,(Tipo)NColuna" />
                 <Label text=") VALUES(?);" />
-                <TextField fx:id="txquantidade" focusTraversable="false" prefHeight="31.0" prefWidth="144.0" promptText="Número de Linhas" />
+                <TextField fx:id="txquantidade" prefHeight="31.0" prefWidth="144.0" promptText="Número de Linhas" />
                 <Button focusTraversable="false" mnemonicParsing="false" onAction="#evtGeraScript" text="Gerar" />
             <ImageView fx:id="ivhelp" fitHeight="33.0" fitWidth="35.0" onMouseClicked="#evtHelp" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -30,12 +30,12 @@
         </HBox>
     </top>
     <center>
-        <TextArea fx:id="txscript" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+        <TextArea fx:id="txscript" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
     </center>
     <bottom>
         <HBox alignment="CENTER_RIGHT" prefHeight="46.0" prefWidth="775.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onMouseClicked="#evtCopy" text="Copy">
+            <Button focusTraversable="false" mnemonicParsing="false" onMouseClicked="#evtCopy" text="Copy">
                <HBox.margin>
                   <Insets right="25.0" />
                </HBox.margin>
