@@ -5,11 +5,15 @@
  */
 package Controladora;
 
+import Banco.Banco;
+import Banco.Conexao;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
@@ -23,6 +27,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javax.sql.rowset.CachedRowSet;
 
 /**
  *
@@ -108,6 +113,36 @@ public class Controller
             nome += rafSnome.readLine();
             rafSnome.close();
         }
+        return nome;
+    }
+
+    private String GetNomeSQLite() throws SQLException
+    {
+        String nome = "";
+        Integer aux;
+        Conexao con = Banco.getConexao();
+        ResultSet rs;
+        int countP = con.getMaxPK("pnome", "codigo");
+        int countM = con.getMaxPK("mnome", "codigo");
+        int countS = con.getMaxPK("snome", "codigo");
+
+        //nome
+        aux = new Random().nextInt(countP);
+        rs = con.consultar("SELECT nome FROM pnome WHERE codigo = " + aux.toString());
+        rs.next();
+        nome = rs.getString("nome") + " ";
+
+        //nome do meio
+        aux = new Random().nextInt(countM);
+        rs = con.consultar("SELECT nome FROM mnome WHERE codigo = " + aux.toString());
+        rs.next();
+        nome += rs.getString("nome") + " ";
+
+        //sobrenome
+        aux = new Random().nextInt(countS);
+        rs = con.consultar("SELECT nome FROM snome WHERE codigo = " + aux.toString());
+        rs.next();
+        nome += rs.getString("nome");
         return nome;
     }
 
@@ -217,7 +252,8 @@ public class Controller
                             sql.append(r.nextInt(10) % 2);
                         } else if (colunas.get(k).toLowerCase().contains("(string)"))
                         {
-                            sql.append("'").append(GetNomeR()).append("'");
+                            sql.append("'").append(GetNomeSQLite()).append("'");
+                            //sql.append("'").append(GetNomeR()).append("'");
                         } else
                         {
                             sql.append("''");
@@ -244,10 +280,10 @@ public class Controller
         return sql.toString();
     }
 
-    ////////////////////tentativa schitch regex
-
+    ////////////////////tentativa schitch
     /**
-     *Pequeno ganho de performace se comparado ao metodo sem switch
+     * Pequeno ganho de performace se comparado ao metodo sem switch
+     *
      * @return String->(SQL)
      */
     public String GetScriptStringBuilderSwitch()
@@ -274,7 +310,7 @@ public class Controller
                         otimizacao = colunas.get(k).toLowerCase();
                         i1 = otimizacao.indexOf("(");
                         i2 = otimizacao.indexOf(")");
-                        tp = otimizacao.substring(i1+1, i2);
+                        tp = otimizacao.substring(i1 + 1, i2);
                         switch (tp)
                         {
                             case "double":
@@ -311,7 +347,7 @@ public class Controller
                         otimizacao = colunas.get(k).toLowerCase();
                         i1 = otimizacao.indexOf("(");
                         i2 = otimizacao.indexOf(")");
-                        tp = otimizacao.substring(i1+1, i2);
+                        tp = otimizacao.substring(i1 + 1, i2);
 
                         switch (tp)
                         {
@@ -337,7 +373,7 @@ public class Controller
                                 sql.append("''");
                                 break;
                         }
-                       
+
                         if (k + 1 < colunas.size())
                         {
                             sql.append(", ");

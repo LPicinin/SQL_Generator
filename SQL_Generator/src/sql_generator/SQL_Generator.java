@@ -5,6 +5,8 @@
  */
 package sql_generator;
 
+import Banco.Banco;
+import java.sql.ResultSet;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,11 +23,28 @@ public class SQL_Generator extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        Parent root = FXMLLoader.load(getClass().getResource("TelaPrincipal.fxml")); 
+        Parent root = FXMLLoader.load(getClass().getResource("TelaPrincipal.fxml"));
         Scene scene = new Scene(root);
 
         stage.setScene(scene);
-        stage.show();
+        if (Banco.conectar())
+        {
+            stage.show();
+            /*try
+            {
+                ResultSet consultar = Banco.getConexao().consultar("SELECT nome from snome where codigo = 150");
+                consultar.next();
+                System.out.println(consultar.getString("nome"));
+            } catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }*/
+        } else
+        {
+            System.out.println(Banco.getConexao().getMensagemErro());
+            System.exit(0);
+        }
+
     }
 
     /**
