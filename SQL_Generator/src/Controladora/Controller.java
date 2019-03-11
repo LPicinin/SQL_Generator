@@ -35,9 +35,9 @@ import javax.sql.rowset.CachedRowSet;
  */
 public class Controller
 {
-    
+
     private static Controller controller;
-    
+
     private String tabela;
     private ArrayList<String> colunas;
     private TextField txtabela;
@@ -46,12 +46,12 @@ public class Controller
     private HBox pngenerator;
     private TextField txquantidade;
     private ImageView ivhelp;
-    
+
     private Controller()
     {
         colunas = new ArrayList<>();
     }
-    
+
     public static Controller instancia()
     {
         if (controller == null)
@@ -60,7 +60,7 @@ public class Controller
         }
         return controller;
     }
-    
+
     public void setALL(TextField txtabela,
             TextField txcolunas, TextArea txscript, HBox pngenerator,
             TextField txquantidade, ImageView ivhelp)
@@ -73,48 +73,56 @@ public class Controller
         this.ivhelp = ivhelp;
     }
 
-    /*private String GetNomeR() throws IOException
+    private String GetNomeR()
     {
         String nome = "";
         Integer aux;
         File f = new File("src/Arquivos/PrimeiroNome.txt");
         File f2 = new File("src/Arquivos/MeioNome.txt");
         File f3 = new File("src/Arquivos/SobreNome.txt");
-        if (f.exists())
+        try
         {
-            try
+            if (f.exists())
             {
-                RandomAccessFile rafNome = new RandomAccessFile(f, "r");
-                aux = new Random().nextInt((int) rafNome.length());
-                rafNome.seek(aux);
-                rafNome.readLine();
-                nome = rafNome.readLine() + " ";
-                rafNome.close();
-            } catch (FileNotFoundException ex)
-            {
-                System.out.println(ex.getMessage());
+                try
+                {
+                    RandomAccessFile rafNome = new RandomAccessFile(f, "r");
+                    aux = new Random().nextInt((int) rafNome.length());
+                    rafNome.seek(aux);
+                    rafNome.readLine();
+                    nome = rafNome.readLine() + " ";
+                    rafNome.close();
+                } catch (FileNotFoundException ex)
+                {
+                    System.out.println(ex.getMessage());
+                }
             }
-        }
-        if (f2.exists())
+            if (f2.exists())
+            {
+                RandomAccessFile rafMnome = new RandomAccessFile(f2, "r");
+                aux = new Random().nextInt((int) rafMnome.length());
+                rafMnome.seek(aux);
+                rafMnome.readLine();
+                nome += rafMnome.readLine() + " ";
+                rafMnome.close();
+            }
+            if (f3.exists())
+            {
+                RandomAccessFile rafSnome = new RandomAccessFile(f3, "r");
+                aux = new Random().nextInt((int) rafSnome.length());
+                rafSnome.seek(aux);
+                rafSnome.readLine();
+                nome += rafSnome.readLine();
+                rafSnome.close();
+            }
+        } catch (Exception ex)
         {
-            RandomAccessFile rafMnome = new RandomAccessFile(f2, "r");
-            aux = new Random().nextInt((int) rafMnome.length());
-            rafMnome.seek(aux);
-            rafMnome.readLine();
-            nome += rafMnome.readLine() + " ";
-            rafMnome.close();
+            nome = "default";
         }
-        if (f3.exists())
-        {
-            RandomAccessFile rafSnome = new RandomAccessFile(f3, "r");
-            aux = new Random().nextInt((int) rafSnome.length());
-            rafSnome.seek(aux);
-            rafSnome.readLine();
-            nome += rafSnome.readLine();
-            rafSnome.close();
-        }
+
         return nome;
-    }*/
+    }
+
     private String GetNomeSQLite()
     {
         String nome = "";
@@ -126,28 +134,30 @@ public class Controller
         int countM = con.getMaxPK("mnome", "codigo");
         int countS = con.getMaxPK("snome", "codigo");
         Integer ap, am, as;
-        
+
         ap = r.nextInt(countP);
         am = r.nextInt(countM);
         as = r.nextInt(countS);
         try
         {
             //nome
-            rs = con.consultar("SELECT nome FROM pnome WHERE pnome.codigo = "+ap+" \n"
+            rs = con.consultar("SELECT nome FROM pnome WHERE pnome.codigo = " + ap + " \n"
                     + "    UNION \n"
-                    + "SELECT nome FROM mnome WHERE mnome.codigo = "+am+"\n"
+                    + "SELECT nome FROM mnome WHERE mnome.codigo = " + am + "\n"
                     + "    UNION\n"
-                    + "SELECT nome FROM snome WHERE snome.codigo = "+as+"");
-            while(rs.next())
+                    + "SELECT nome FROM snome WHERE snome.codigo = " + as + "");
+            while (rs.next())
+            {
                 nome += rs.getString("nome");
+            }
         } catch (Exception ex)
         {
             System.out.println(ex.getMessage() + Banco.getConexao().getMensagemErro());
         }
-        
+
         return nome;
     }
-    
+
     private Boolean getInformacoes()
     {
         boolean flag = true;
@@ -188,13 +198,13 @@ public class Controller
         }
         return flag && colunas.size() > 0;
     }
-    
+
     public String GetScriptStringBuilder()
     {
         StringBuilder sql = new StringBuilder("");
         txscript.setText("");
         pngenerator.setDisable(true);
-        
+
         if (getInformacoes())
         {
             Random r = new Random();
@@ -267,12 +277,12 @@ public class Controller
                     }
                     sql.append(");\n");
                 }
-                
+
             } catch (Exception ex)
             {
                 System.out.println(ex.getMessage());
             }
-            
+
         } else
         {
             pngenerator.setDisable(false);
@@ -293,7 +303,7 @@ public class Controller
         StringBuilder sql = new StringBuilder("");
         txscript.setText("");
         pngenerator.setDisable(true);
-        
+
         if (getInformacoes())
         {
             Random r = new Random();
@@ -343,12 +353,12 @@ public class Controller
                 sql.append(") VALUES (");
                 for (k = 0; k < colunas.size(); k++)
                 {
-                    
+
                     otimizacao = colunas.get(k).toLowerCase();
                     i1 = otimizacao.indexOf("(");
                     i2 = otimizacao.indexOf(")");
                     tp = otimizacao.substring(i1 + 1, i2);
-                    
+
                     switch (tp)
                     {
                         case "double":
@@ -361,7 +371,7 @@ public class Controller
                             sql.append(Integer.toString(j + 1));
                             break;
                         case "string":
-                            sql.append("'").append(GetNomeSQLite()).append("'");
+                            sql.append("'").append(GetNomeR()).append("'");
                             break;
                         case "date":
                             sql.append("'").append(Date.valueOf(LocalDate.now().plusDays(r.nextInt(30)).plusMonths(r.nextInt(12)).plusYears(-r.nextInt(5))).toString()).append("'");
@@ -373,7 +383,7 @@ public class Controller
                             sql.append("''");
                             break;
                     }
-                    
+
                     if (k + 1 < colunas.size())
                     {
                         sql.append(", ");
@@ -381,7 +391,7 @@ public class Controller
                 }
                 sql.append(");\n");
             }
-            
+
         } else
         {
             pngenerator.setDisable(false);
@@ -390,7 +400,7 @@ public class Controller
         pngenerator.setDisable(false);
         return sql.toString();
     }
-    
+
     public void geraSQL()
     {
         txscript.setText(GetScriptStringBuilderSwitch());
