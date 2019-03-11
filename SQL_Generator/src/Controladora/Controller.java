@@ -35,9 +35,9 @@ import javax.sql.rowset.CachedRowSet;
  */
 public class Controller
 {
-
+    
     private static Controller controller;
-
+    
     private String tabela;
     private ArrayList<String> colunas;
     private TextField txtabela;
@@ -46,12 +46,12 @@ public class Controller
     private HBox pngenerator;
     private TextField txquantidade;
     private ImageView ivhelp;
-
+    
     private Controller()
     {
         colunas = new ArrayList<>();
     }
-
+    
     public static Controller instancia()
     {
         if (controller == null)
@@ -60,7 +60,7 @@ public class Controller
         }
         return controller;
     }
-
+    
     public void setALL(TextField txtabela,
             TextField txcolunas, TextArea txscript, HBox pngenerator,
             TextField txquantidade, ImageView ivhelp)
@@ -121,37 +121,33 @@ public class Controller
         Integer aux;
         Conexao con = Banco.getConexao();
         ResultSet rs;
+        Random r = new Random();
         int countP = con.getMaxPK("pnome", "codigo");
         int countM = con.getMaxPK("mnome", "codigo");
         int countS = con.getMaxPK("snome", "codigo");
-
+        Integer ap, am, as;
+        
+        ap = r.nextInt(countP);
+        am = r.nextInt(countM);
+        as = r.nextInt(countS);
         try
         {
             //nome
-            aux = new Random().nextInt(countP);
-            rs = con.consultar("SELECT nome FROM pnome WHERE codigo = " + aux.toString());
-            rs.next();
-            nome = rs.getString("nome") + " ";
-
-            //nome do meio
-            aux = new Random().nextInt(countM);
-            rs = con.consultar("SELECT nome FROM mnome WHERE codigo = " + aux.toString());
-            rs.next();
-            nome += rs.getString("nome") + " ";
-
-            //sobrenome
-            aux = new Random().nextInt(countS);
-            rs = con.consultar("SELECT nome FROM snome WHERE codigo = " + aux.toString());
-            rs.next();
-            nome += rs.getString("nome");
+            rs = con.consultar("SELECT nome FROM pnome WHERE pnome.codigo = "+ap+" \n"
+                    + "    UNION \n"
+                    + "SELECT nome FROM mnome WHERE mnome.codigo = "+am+"\n"
+                    + "    UNION\n"
+                    + "SELECT nome FROM snome WHERE snome.codigo = "+as+"");
+            while(rs.next())
+                nome += rs.getString("nome");
         } catch (Exception ex)
         {
-            System.out.println(ex.getMessage()+Banco.getConexao().getMensagemErro());
+            System.out.println(ex.getMessage() + Banco.getConexao().getMensagemErro());
         }
-
+        
         return nome;
     }
-
+    
     private Boolean getInformacoes()
     {
         boolean flag = true;
@@ -192,13 +188,13 @@ public class Controller
         }
         return flag && colunas.size() > 0;
     }
-
+    
     public String GetScriptStringBuilder()
     {
         StringBuilder sql = new StringBuilder("");
         txscript.setText("");
         pngenerator.setDisable(true);
-
+        
         if (getInformacoes())
         {
             Random r = new Random();
@@ -271,12 +267,12 @@ public class Controller
                     }
                     sql.append(");\n");
                 }
-
+                
             } catch (Exception ex)
             {
                 System.out.println(ex.getMessage());
             }
-
+            
         } else
         {
             pngenerator.setDisable(false);
@@ -297,7 +293,7 @@ public class Controller
         StringBuilder sql = new StringBuilder("");
         txscript.setText("");
         pngenerator.setDisable(true);
-
+        
         if (getInformacoes())
         {
             Random r = new Random();
@@ -385,7 +381,7 @@ public class Controller
                 }
                 sql.append(");\n");
             }
-
+            
         } else
         {
             pngenerator.setDisable(false);
@@ -394,7 +390,7 @@ public class Controller
         pngenerator.setDisable(false);
         return sql.toString();
     }
-
+    
     public void geraSQL()
     {
         txscript.setText(GetScriptStringBuilderSwitch());
