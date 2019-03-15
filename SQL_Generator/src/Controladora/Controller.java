@@ -9,25 +9,17 @@ import Banco.Banco;
 import Banco.Conexao;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javax.sql.rowset.CachedRowSet;
 
 /**
  *
@@ -120,9 +112,10 @@ public class Controller
             nome = "default";
         }
 
-        return nome;
+        return nome.replace("'", "");
     }
-
+    
+    @Deprecated
     private String GetNomeSQLite()
     {
         String nome = "";
@@ -199,6 +192,7 @@ public class Controller
         return flag && colunas.size() > 0;
     }
 
+    @Deprecated
     public String GetScriptStringBuilder()
     {
         StringBuilder sql = new StringBuilder("");
