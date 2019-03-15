@@ -6,29 +6,29 @@
 package sql_generator;
 
 import Banco.Banco;
+import Util.Mensagem;
 import java.sql.ResultSet;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
 /**
  *
  * @author Luish
  */
-public class SQL_Generator extends Application
-{
+public class SQL_Generator extends Application {
 
     @Override
-    public void start(Stage stage) throws Exception
-    {
+    public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("TelaPrincipal.fxml"));
         Scene scene = new Scene(root);
-
+        //scene.getStylesheets().add("style.css");
         stage.setScene(scene);
-        if (Banco.conectar())
-        {
+        //Mensagem.get(null, "", ButtonType.OK).show();
+        if (Banco.conectar()) {
             stage.show();
             /*try
             {
@@ -39,8 +39,7 @@ public class SQL_Generator extends Application
             {
                 System.out.println(e.getMessage());
             }*/
-        } else
-        {
+        } else {
             System.out.println(Banco.getConexao().getMensagemErro());
             System.exit(0);
         }
@@ -50,8 +49,7 @@ public class SQL_Generator extends Application
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         launch(args);
     }
 }
